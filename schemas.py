@@ -57,7 +57,6 @@ class Book(BookBase):
 
 class PaginatedResponse(GenericModel, Generic[T]):
     items: list[T]
-    total: int
     skip: int
     limit: int
 
