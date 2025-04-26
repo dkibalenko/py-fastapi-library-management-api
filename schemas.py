@@ -1,8 +1,7 @@
 from datetime import date
-from typing import Optional, Generic, TypeVar
+from typing import List, Optional, Generic, TypeVar
 
-from pydantic import BaseModel, field_validator, Field
-from pydantic.generics import GenericModel
+from pydantic import BaseModel, field_validator, Field, ConfigDict
 
 
 T = TypeVar("T")
@@ -20,8 +19,7 @@ class AuthorCreate(AuthorBase):
 class Author(AuthorBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookBase(BaseModel):
@@ -40,8 +38,7 @@ class BookBase(BaseModel):
             return value.isoformat()
         return value
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookCreate(BookBase):
@@ -51,12 +48,11 @@ class BookCreate(BookBase):
 class Book(BookBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
-class PaginatedResponse(GenericModel, Generic[T]):
-    items: list[T]
+class PaginatedResponse(BaseModel, Generic[T]):
+    items: List[T]
     skip: int
     limit: int
 
