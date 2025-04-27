@@ -39,3 +39,29 @@ def create_author(author: schemas.AuthorCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Author already exists.")
 
     return crud.create_author(db=db, author=author)
+
+
+@app.post("/books/", response_model=schemas.Book)
+def create_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
+    db_book = crud.get_book_by_title(db=db, title=book.title)
+
+    if db_book is not None:
+        raise HTTPException(status_code=400, detail="Book already exists.")
+
+    return crud.create_book(db=db, book=book)
+
+
+@app.get("/books/", response_model=schemas.PaginatedBooks)
+def get_book_list(
+    db: Session = Depends(get_db),
+    skip: int = Query(0),
+    limit: int = Query(10),
+    author_id: int = Query(None)
+):
+    books = crud.get_books(db=db, skip=skip, limit=limit, author_id=author_id)
+
+    return schemas.PaginatedBooks(
+        items=books,
+        skip=skip,
+        limit=limit
+    )
