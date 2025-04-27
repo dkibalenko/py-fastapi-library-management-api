@@ -2,7 +2,8 @@ from typing import List
 
 from sqlalchemy.orm import Session
 
-import models, schemas
+import models
+import schemas
 
 
 def get_author_by_name(
@@ -42,7 +43,7 @@ def create_author(db: Session, author: schemas.AuthorCreate) -> models.Author:
 
 def get_authors(db: Session, skip: int, limit: int) -> List[models.Author]:
     """
-    Validate and create Pydantic models from the retrieved list of SQlAlchemy 
+    Validate and create Pydantic models from the retrieved list of SQlAlchemy
     Author ORM objects out of the database.
 
     Parameters:
@@ -51,7 +52,7 @@ def get_authors(db: Session, skip: int, limit: int) -> List[models.Author]:
     - limit (int): The maximum number of records to return.
 
     Returns:
-    - List[models.Author]: A list of Pydantic models representing authors 
+    - List[models.Author]: A list of Pydantic models representing authors
     after applying the specified pagination.
     """
 
