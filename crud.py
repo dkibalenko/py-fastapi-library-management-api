@@ -73,3 +73,54 @@ def get_author(db: Session, author_id: int) -> models.Author | None:
     return (
         db.query(models.Author).filter(models.Author.id == author_id).first()
     )
+
+
+def get_book_by_title(
+        db: Session,
+        title: str
+) -> models.Book | None:
+    return db.query(models.Book).filter(models.Book.title == title).first()
+
+
+def create_book(db: Session, book: schemas.BookCreate) -> models.Book:
+    """
+    Create a new book in the database.
+
+    Args:
+    - db (Session): SQLAlchemy database session.
+    - book (schemas.BookCreate): The book to be created.
+
+    Returns:
+    - models.Book: The created book.
+    """
+    db_book = models.Book(
+        title=book.title,
+        summary=book.summary,
+        publication_date=book.publication_date,
+        author_id=book.author_id
+    )
+    db.add(db_book)
+    db.commit()
+    db.refresh(db_book)
+
+    return db_book
+
+
+def get_books(
+        db: Session,
+        skip: int,
+        limit: int,
+        author_id: int | None = None,
+) -> list[schemas.Book]:
+    """
+    Retrieve a list of books from the database with filtering by author.
+    """
+
+    query = db.query(models.Book)
+
+    if author_id is not None:
+        query = query.filter(models.Book.author_id == author_id)
+
+    books = query.offset(skip).limit(limit).all()
+
+    return [schemas.Book.model_validate(book) for book in books]
