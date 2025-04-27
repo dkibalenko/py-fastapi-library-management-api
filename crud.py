@@ -41,7 +41,7 @@ def create_author(db: Session, author: schemas.AuthorCreate) -> models.Author:
     return db_author
 
 
-def get_authors(db: Session, skip: int, limit: int) -> List[models.Author]:
+def get_authors(db: Session, skip: int, limit: int) -> List[schemas.Author]:
     """
     Validate and create Pydantic models from the retrieved list of SQlAlchemy
     Author ORM objects out of the database.
