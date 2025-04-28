@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import FastAPI, HTTPException, Query, Depends
 from sqlalchemy.orm import Session
 
@@ -8,17 +10,25 @@ from database import get_db
 app = FastAPI()
 
 
-@app.get("/authors/", response_model=schemas.PaginatedAuthors)
-def get_author_list(
-    db: Session = Depends(get_db),
+def common_pagination_params(
     skip: int = Query(0),
     limit: int = Query(10)
 ):
-    authors = crud.get_authors(db, skip, limit)
+    return {"skip": skip, "limit": limit}
+
+CommonsDep = Annotated[dict, Depends(common_pagination_params)]
+
+
+@app.get("/authors/", response_model=schemas.PaginatedAuthors)
+def get_author_list(
+    pagination: CommonsDep,
+    db: Session = Depends(get_db)
+):
+    authors = crud.get_authors(db, pagination["skip"], pagination["limit"])
     return schemas.PaginatedAuthors(
         items=authors,
-        skip=skip,
-        limit=limit
+        skip=pagination["skip"],
+        limit=pagination["limit"]
     )
 
 
@@ -54,15 +64,19 @@ def create_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
 
 @app.get("/books/", response_model=schemas.PaginatedBooks)
 def get_book_list(
+    pagination: CommonsDep,
     db: Session = Depends(get_db),
-    skip: int = Query(0),
-    limit: int = Query(10),
     author_id: int = Query(None)
 ):
-    books = crud.get_books(db=db, skip=skip, limit=limit, author_id=author_id)
+    books = crud.get_books(
+        db=db,
+        skip=pagination["skip"],
+        limit=pagination["limit"],
+        author_id=author_id
+    )
 
     return schemas.PaginatedBooks(
         items=books,
-        skip=skip,
-        limit=limit
+        skip=pagination["skip"],
+        limit=pagination["limit"]
     )
